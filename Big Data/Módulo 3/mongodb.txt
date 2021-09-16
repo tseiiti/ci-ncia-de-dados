@@ -1,0 +1,363 @@
+mongo
+use aula
+mongoimport --db="aula" --collection="livros" --file="books.json"
+
+1) Mostrar todos os databases:
+show dbs
+2) Acesso ao database aula:
+use aula
+3) Checagem se há collections no database aula:
+show collections
+	431
+4) Checagem se a collections livros foi carregada:
+db.livros.find().count()
+5) Você precisa consultar os livros com o campo pageCount menor ou igual a 100. Repare que esse campo é numérico. O comando abaixo vai retornar a lista de livros. Para facilitar você pode usar .pretty(). Para facilitar mais ainda você pode usar .count().
+db.livros.find({pageCount: {$lte: 100}}).count()
+	166
+6) Agora vamos consultar os livros com o campo isbn menor ou igual a "1617200000". Repare que esse campo tem um conteúdo string e não numérico.
+O comando é: db.livros.find({isbn:{$lte: "1617200000"}})
+Lembre se de usar o “.count()” para facilitar o resultado.
+Mas o que realmente nos interessa é buscar os valores maiores que "1933988746". Baseado no comando acima, faça os ajustes para que a consulta retorne apenas os maiores valores que "1933988746". Anote esse valor.
+db.livros.find({isbn: {$gte: "1933988746"}}).count()
+	85
+7) Faça uma consulta na collection de livros onde o campo isbn é menor ou igual a "1617200000". Recupere apenas os nomes dos livros.
+db.livros.find({$and: [{isbn: {$lte: "1617200000"}}, {title: /^G/}]}, {_id: 0, title: 1}).sort({title: 1})
+	Graphics File Formats
+8) Execute o comando abaixo para inserir mais 4 livros
+db.livros.insertMany([
+{"title" : "Saci Pererê", "isbn" : "100", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
+{"title" : "A Cuca", "isbn" : "99", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
+{"title" : "Curupira", "isbn" : "98", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
+{"title" : "Jeca Tatu", "isbn" : "97", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]}
+])
+9) Execute o comando para saber quantos livros tem o campo isbn menor ou igual a "10" ($lte: "10"). Lembre se de usar o “.count()” para facilitar o resultado. Em seguida, faça o mesmo para o campo isbn menor ou igual a "100" ($lte: "100").
+db.livros.find({isbn: {$lte: "10"}}).count()
+	4
+db.livros.find({isbn: {$lte: "100"}}).count()
+	5
+10) Ainda utilizando o comando do passo anterior (9), a consulta retorna livros que tem o campo isbn menor ou igual a "10" ($lte: "10"). Quais são os 2 primeiros livros da lista? Dica, use o comando pretty() e limit() para facilitar a visualização do resultado.
+db.livros.find({isbn: {$lte: "10"}}, {_id: 0, title: 1}).limit(2)
+	{ "title" : "Comprehensive Networking Glossary and Acronym Guide" }
+	{ "title" : "Personal Videoconferencing" }
+11) O que faz o comando abaixo? Ele mostra quantos livros e porque isso?
+db.livros.find({isbn:{$lte: "100"}}).pretty().skip(2)
+	3
+12) O que faz o comando abaixo? Ele mostra quantos livros e porque isso? Observe o que há de comum nos títulos dos livros.
+db.livros.find({title: /Windows/}).count()
+	11
+db.livros.find({title: /Windows/}, {_id:0, title:1})
+13) No comando find, vamos acrescentar o comando sort descendente (-1) para a chave pageCount.
+db.livros.find({}, {_id: 0, pageCount: 1}).sort({pageCount: -1}).limit(2)
+	{ "pageCount" : 1101 }
+	{ "pageCount" : 1096 }
+
+
+
+mongo
+use desafio
+mongoimport --db="desafio" --collection="ocorrencia" --file="ocorrencia.csv" --type csv --headerline
+mongoimport --db="desafio" --collection="ocorrencia_tipo" --file="ocorrencia_tipo.csv" --type csv --headerline
+mongoimport --db="desafio" --collection="aeronave" --file="aeronave.csv" --type csv --headerline
+
+1) Antes de fazer a importação novamente na collection Aeronave, você precisou limpar os dados que forma importados anteriormente. Você executou o comando db.aeronave.remove({}).
+Quantos documentos foram removidos?
+db.aeronave.remove({})
+	97
+2) Verifique o número de documentos carregados na collection “ocorrencia”.
+Você pode usar a função count() ou db.collection.aggregate com {$sum:1}.
+db.ocorrencia.find().count()
+	5155
+3) Verifique o número de documentos carregados na collection “ocorrencia_tipo”.
+Você pode usar a função count() ou db.collection.aggregate com {$sum:1}.
+db.ocorrencia_tipo.find().count()
+	5244
+4) Verifique o número de documentos carregados na collection “aeronave”.
+Você pode usar a função count() ou db.collection.aggregate com {$sum:1}.
+db.aeronave.find().count()
+	5213
+5) Execute um comando find() na collection aeronave com modelo= 'AB-115' OU tipo_veiculo = 'AVIAO'.
+db.collection.find({ [$or: [{ , } ]})
+Limite a consulta para trazer apenas os 5 primeiros documentos.
+{_id:0, matricula: 1}).limit(5).pretty()
+db.aeronave.find({$or: [{modelo: "AB-115"}, {tipo_veiculo: "AVIAO"}]}, {_id: 0, matricula: 1}).limit(5).pretty()
+	{ "matricula" : "PTNQX" }
+	{ "matricula" : "PTLVI" }
+	{ "matricula" : "PPPTO" }
+	{ "matricula" : "PRLGJ" }
+	{ "matricula" : "PRMAA" }
+6) Execute um comando find() na collection aeronave onde o tipo_veiculo não são os seguintes tipos:
+['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE']
+Limite o resultado da consulta para trazer apenas os 8 primeiros documentos.
+A dica é que podemos usar a condição IN para retornar apenas valores que estão dentro de uma lista e o NOT IN para retornar os valores que não estão dentro de uma lista.
+db.aeronave.find({tipo_veiculo: {$nin: ['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE']}}).limit(8).pretty()
+db.aeronave.find({tipo_veiculo: {$nin: ['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE']}}, {_id: 0, tipo_veiculo: 1})
+db.aeronave.aggregate({$match: {tipo_veiculo: {$nin: ['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE']}}}, {$group: {_id: '$tipo_veiculo'}})
+7) Execute um comando aggregate() na collection aeronave para agrupar os documentos pelo campo tipo_veiculo fazendo uma contagem ($sum:1) para cada tipo_veiculo.
+db.aeronave.aggregate({$group: {_id: '$tipo_veiculo', count: {$sum: 1}}})
+db.aeronave.aggregate({$group: {_id: '$tipo_veiculo', count: {$count: {}}}})
+db.aeronave.aggregate([{$sort: {tipo_veiculo: 1}}, {$group: {_id: '$tipo_veiculo', sum: {$sum: 1}, count: {$count: {}}}}])
+	{ "_id" : "ANFIBIO", "sum" : 12, "count" : 12 }
+	{ "_id" : "PLANADOR", "sum" : 15, "count" : 15 }
+	{ "_id" : "HELICOPTERO", "sum" : 600, "count" : 600 }
+	{ "_id" : "ULTRALEVE", "sum" : 307, "count" : 307 }
+	{ "_id" : "AVIAO", "sum" : 4195, "count" : 4195 }
+	{ "_id" : "TRIKE", "sum" : 4, "count" : 4 }
+	{ "_id" : "DIRIGIVEL", "sum" : 2, "count" : 2 }
+	{ "_id" : "HIDROAVIAO", "sum" : 1, "count" : 1 }
+	{ "_id" : "***", "sum" : 76, "count" : 76 }
+	{ "_id" : "BALAO", "sum" : 1, "count" : 1 }
+8) Execute um comando find() na collection ocorrencia para buscar os documentos com o field num_recomendacoes menor ou igual ($lte) a 5 (<=5). Limite o resultado da sua consulta em 10 documentos. Anote o maior valor para a recomendação encontrada.
+db.ocorrencia.find({num_recomendacoes: {$lte: 5}}).limit(10).sort({num_recomendacoes: -1}).pretty()
+db.ocorrencia.find({num_recomendacoes: {$lte: 5}}, {_id: 0, num_recomendacoes: 1}).limit(10)
+	3
+9) Execute um comando aggregate() na collection ocorrencia para buscar os documentos conforme abaixo.
+• Field num_recomendacoes menor ou igual ($lte) a 5 (<=5).
+• Agrupar pelo field uf ($uf).
+• Fazer a contagem ($sum:1).
+• Ordenar de forma descendente
+ db.ocorrencia.aggregate([
+	{$match: {num_recomendacoes: {$lte: 5}}}, 
+	{$group: {_id: '$uf', sum: {$sum: 1}, count: {$count: {}}}}, 
+	{$sort: {_id: 1}}
+])
+db.ocorrencia.aggregate([
+	{$match: {num_recomendacoes: {$lte: 5}}}, 
+	{$group: {_id: '$uf', sum: {$sum: 1}, count: {$count: {}}}}, 
+	{$sort: {sum: -1}}
+])
+	{ "_id" : "***", "sum" : 2, "count" : 2 }
+	{ "_id" : "AC", "sum" : 51, "count" : 51 }
+	{ "_id" : "AL", "sum" : 27, "count" : 27 }
+	{ "_id" : "AM", "sum" : 209, "count" : 209 }
+	{ "_id" : "AP", "sum" : 9, "count" : 9 }
+	{ "_id" : "BA", "sum" : 196, "count" : 196 }
+	{ "_id" : "CE", "sum" : 76, "count" : 76 }
+	{ "_id" : "DF", "sum" : 124, "count" : 124 }
+	{ "_id" : "ES", "sum" : 66, "count" : 66 }
+	{ "_id" : "GO", "sum" : 278, "count" : 278 }
+	{ "_id" : "MA", "sum" : 67, "count" : 67 }
+	{ "_id" : "MG", "sum" : 474, "count" : 474 }
+	{ "_id" : "MS", "sum" : 131, "count" : 131 }
+	{ "_id" : "MT", "sum" : 248, "count" : 248 }
+	{ "_id" : "PA", "sum" : 252, "count" : 252 }
+	{ "_id" : "PB", "sum" : 24, "count" : 24 }
+	{ "_id" : "PE", "sum" : 85, "count" : 85 }
+	{ "_id" : "PI", "sum" : 34, "count" : 34 }
+	{ "_id" : "PR", "sum" : 423, "count" : 423 }
+	{ "_id" : "RJ", "sum" : 469, "count" : 469 }
+	{ "_id" : "RN", "sum" : 14, "count" : 14 }
+	{ "_id" : "RO", "sum" : 27, "count" : 27 }
+	{ "_id" : "RR", "sum" : 49, "count" : 49 }
+	{ "_id" : "RS", "sum" : 325, "count" : 325 }
+	{ "_id" : "SC", "sum" : 160, "count" : 160 }
+	{ "_id" : "SE", "sum" : 20, "count" : 20 }
+	{ "_id" : "SP", "sum" : 1211, "count" : 1211 }
+	{ "_id" : "TO", "sum" : 46, "count" : 46 }
+10) Execute um comando aggregate() na collection ocorrencia para buscar a média dos números de recomendações ($num_recomendacoes).
+db.ocorrencia.aggregate({$group: {_id: 'num_recomendacoes', avg: {$avg: '$num_recomendacoes'}}})
+	{ "_id" : "num_recomendacoes", "avg" : 0.3258971871968962 }
+11) Execute um comando lookup aggregate() na collection aeronave fazendo uma junção com a collection ocorrencia. Limite o resultado do lookup aggregate() em dois documentos para facilitar a visão do que acontece.
+db.aeronave.aggregate([{
+		$lookup:{
+			from: 'ocorrencia',
+			localField: 'id_ocorrencia_a',
+			foreignField: 'id_ocorrencia',
+			as: 'ocorrencia'
+		}
+	}, {
+		$limit: 2
+	}]).pretty()
+12) Execute um comando lookup aggregate() na collection ocorrencia fazendo uma junção com a collection ocorrencia_tipo. Limite o resultado do lookup aggregate() em dois documentos para facilitar a visão do que acontece.
+db.ocorrencia.aggregate([{
+		$lookup:{
+			from: 'ocorrencia_tipo',
+			localField: 'id_ocorrencia',
+			foreignField: 'id_ocorrencia_t',
+			as: 'ocorrencia_tipo'
+		}
+	}, {
+		$limit: 2
+	}]).pretty()
+13) Vamos analisar a criação de índices na collection ocorrencia_tipo.
+Execute os comandos abaixos e analise os resultados.
+db.aeronave.find({voo_destino: "SERRA DO SOL"}).explain();
+db.aeronave.find({voo_destino: "SERRA DO SOL"}).explain(true).executionStats;
+Em ambos, observe o resultado para o parâmetro “stage”, que será COLLSCAN e o número de documentos examinados ("totalDocsExamined") foi 5213.
+Observe também o parâmetro "executionTimeMillis", que no meu caso foi 5 milisegundos.
+Agora vamos criar um índice para voo_destino, ascendente.
+Db.aeronave.createIndex({voo_destino: 1})
+Execute novamente os comandos abaixo e analise os resultados.
+db.aeronave.find({voo_destino: "SERRA DO SOL"}).explain();
+db.aeronave.find({voo_destino: "SERRA DO SOL"}).explain(true).executionStats;
+Observe o resultado para o parâmetro “stage”, que agora será será FETCH e o número de documentos examinados ("totalDocsExamined") foi apenas 1.
+O parâmetro "executionTimeMillis", no meu caso retornou agora 1 milisegundo.
+Se quiser remover o índice é só executar o comando abaixo.
+db.aeronave.dropIndex({voo_destino: 1})
+db.aeronave.find({voo_destino: "SERRA DO SOL"}).explain();
+{
+        "explainVersion" : "1",
+        "queryPlanner" : {
+                "namespace" : "desafio.aeronave",
+                "indexFilterSet" : false,
+                "parsedQuery" : {
+                        "voo_destino" : {
+                                "$eq" : "SERRA DO SOL"
+                        }
+                },
+                "queryHash" : "E1F326EB",
+                "planCacheKey" : "7E0A3A4D",
+                "maxIndexedOrSolutionsReached" : false,
+                "maxIndexedAndSolutionsReached" : false,
+                "maxScansToExplodeReached" : false,
+                "winningPlan" : {
+                        "stage" : "COLLSCAN",
+                        "filter" : {
+                                "voo_destino" : {
+                                        "$eq" : "SERRA DO SOL"
+                                }
+                        },
+                        "direction" : "forward"
+                },
+                "rejectedPlans" : [ ]
+        },
+        "command" : {
+                "find" : "aeronave",
+                "filter" : {
+                        "voo_destino" : "SERRA DO SOL"
+                },
+                "$db" : "desafio"
+        },
+        "serverInfo" : {
+                "host" : "SEIITI-LENOVO",
+                "port" : 27017,
+                "version" : "5.0.2",
+                "gitVersion" : "6d9ec525e78465dcecadcff99cce953d380fedc8"
+        },
+        "serverParameters" : {
+                "internalQueryFacetBufferSizeBytes" : 104857600,
+                "internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+                "internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+                "internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+                "internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+                "internalQueryProhibitBlockingMergeOnMongoS" : 0,
+                "internalQueryMaxAddToSetBytes" : 104857600,
+                "internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+        },
+        "ok" : 1
+}
+
+db.aeronave.find({voo_destino: "SERRA DO SOL"}).explain(true).executionStats;
+{
+        "executionSuccess" : true,
+        "nReturned" : 1,
+        "executionTimeMillis" : 22,
+        "totalKeysExamined" : 0,
+        "totalDocsExamined" : 5213,
+        "executionStages" : {
+                "stage" : "COLLSCAN",
+                "filter" : {
+                        "voo_destino" : {
+                                "$eq" : "SERRA DO SOL"
+                        }
+                },
+                "nReturned" : 1,
+                "executionTimeMillisEstimate" : 1,
+                "works" : 5215,
+                "advanced" : 1,
+                "needTime" : 5213,
+                "needYield" : 0,
+                "saveState" : 5,
+                "restoreState" : 5,
+                "isEOF" : 1,
+                "direction" : "forward",
+                "docsExamined" : 5213
+        },
+        "allPlansExecution" : [ ]
+}
+
+db.aeronave.find({voo_destino: "SERRA DO SOL"}).explain(true);
+{
+        "explainVersion" : "1",
+        "queryPlanner" : {
+                "namespace" : "desafio.aeronave",
+                "indexFilterSet" : false,
+                "parsedQuery" : {
+                        "voo_destino" : {
+                                "$eq" : "SERRA DO SOL"
+                        }
+                },
+                "maxIndexedOrSolutionsReached" : false,
+                "maxIndexedAndSolutionsReached" : false,
+                "maxScansToExplodeReached" : false,
+                "winningPlan" : {
+                        "stage" : "COLLSCAN",
+                        "filter" : {
+                                "voo_destino" : {
+                                        "$eq" : "SERRA DO SOL"
+                                }
+                        },
+                        "direction" : "forward"
+                },
+                "rejectedPlans" : [ ]
+        },
+        "executionStats" : {
+                "executionSuccess" : true,
+                "nReturned" : 1,
+                "executionTimeMillis" : 3,
+                "totalKeysExamined" : 0,
+                "totalDocsExamined" : 5213,
+                "executionStages" : {
+                        "stage" : "COLLSCAN",
+                        "filter" : {
+                                "voo_destino" : {
+                                        "$eq" : "SERRA DO SOL"
+                                }
+                        },
+                        "nReturned" : 1,
+                        "executionTimeMillisEstimate" : 0,
+                        "works" : 5215,
+                        "advanced" : 1,
+                        "needTime" : 5213,
+                        "needYield" : 0,
+                        "saveState" : 5,
+                        "restoreState" : 5,
+                        "isEOF" : 1,
+                        "direction" : "forward",
+                        "docsExamined" : 5213
+                },
+                "allPlansExecution" : [ ]
+        },
+        "command" : {
+                "find" : "aeronave",
+                "filter" : {
+                        "voo_destino" : "SERRA DO SOL"
+                },
+                "$db" : "desafio"
+        },
+        "serverInfo" : {
+                "host" : "SEIITI-LENOVO",
+                "port" : 27017,
+                "version" : "5.0.2",
+                "gitVersion" : "6d9ec525e78465dcecadcff99cce953d380fedc8"
+        },
+        "serverParameters" : {
+                "internalQueryFacetBufferSizeBytes" : 104857600,
+                "internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+                "internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+                "internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+                "internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+                "internalQueryProhibitBlockingMergeOnMongoS" : 0,
+                "internalQueryMaxAddToSetBytes" : 104857600,
+                "internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+        },
+        "ok" : 1
+}
+
+db.aeronave.createIndex({voo_destino: 1})
+--db.aeronave.dropIndex({voo_destino: 1})
+
+
+
+
+
+
