@@ -1,0 +1,29 @@
+# Como instalar Spark no windows
+
+tutorial incompleto:
+https://phoenixnap.com/kb/install-spark-on-windows-10
+
+java jdk:
+https://www.oracle.com/br/java/technologies/javase/javase8u211-later-archive-downloads.html
+
+python:
+https://www.python.org/downloads/
+
+spark:
+https://spark.apache.org/downloads.html
+
+hadoop:
+https://github.com/cdarlint/winutils/tree/master/hadoop-3.1.2/bin
+
+variáveis de ambiente:
+SPARK_HOME: C:\Users\tseii\WorkSpace\Spark\spark-3.1.2-bin-hadoop3.2
+HADOOP_HOME: C:\Users\tseii\WorkSpace\Hadoop
+PYSPARK_PYTHON: C:\Users\tseii\WorkSpace\Python\VirtualEnv\Scripts\python.exe
+Path: Path;%SPARK_HOME%\bin;%HADOOP_HOME%\bin
+
+1. java não pode ser jre, precisar ser jdk
+2. hadoop só winutils.exe não é suficiente, precisa do hadoop.dll
+3. spark versão 3.2.0 não tá funcionando, use a versão 3.1.2
+4. além das variáveis citadas no site, criar a variável PYSPARK_PYTHON com o local do python.exe
+5. precisar instalar a biblioteca pyspark e psutil
+6. depois de instalar tudo precisa reiniciar
