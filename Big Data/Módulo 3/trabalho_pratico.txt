@@ -1,0 +1,73 @@
+# Você precisará criar um database chamado “aula”.
+use aula
+
+# Você precisará criar uma collection chamada “livros”.
+db.createCollection("livros")
+
+# Vamos carregar o arquivo books.json na collection “livros”.
+# https://www.mongodb.com/try/download/shell
+quit()
+mongoimport --db="aula" --collection="livros" --file="books.json"
+
+# 1. Para que serve a ferramenta MogoDB Compass?
+- Permite explorar os dados de forma visual. 
+
+# 2. Pela prática executada, quantos títulos foram carregados na collection livros?
+> db.livros.find().count()
+431
+
+# 3. Em qual das categorias de banco de dados NoSQL abaixo se enquadra o MongoDB?
+- Orientado a Documentos. 
+
+# 4. Pelo prompt de comando do MongoDB, como se deleta um database? Avalie a resposta pelas opções abaixo.
+- Você precisa utilizar o database pelo comando use <database> e executar o comando db.dropDatabase().
+
+# 5. Pelo prompt de comando do MongoDB, o que acontece se tentarmos executar um drop em uma collection que não existe no MongoDB? Por exemplo, você pode testar essa situação com o comando “db.exemplo.drop()”
+- Retorna a mensagem “false”. 
+
+# 6. Pela prática número 5, onde você consultou os livros com o campo pageCount menor ou igual a 100, quantos livros retornou a consulta?
+> db.livros.find({pageCount:{$lte: 100}}).count()
+166
+
+# 7. Pela prática número 6, onde você precisou consultar os livros com o campo isbn maior que "1933988746", quantos livros retornou a consulta? 
+> db.livros.find({isbn: {$gt: "1933988746"}}).count() 
+85
+
+# 8. Pela prática número 7, onde você precisou consultar o nome dos livros com o campo isbn menor ou igual a "1617200000", qual foi o nome do livro que tem o título começado pela letra “G”?
+> db.livros.find({$and: [{isbn: {$lte: "1617200000"}}, {title: /^G/}]}, {_id: 0, title: 1}).sort({title: 1})
+{ "title" : "Graphics File Formats" }
+
+# 9. Pela prática número 9, onde você precisou consultar os livros que tem o campo isbn menor ou igual a "10" ($lte: "10") e depois isbn menor ou igual a "100" ($lte: "100"), quantos livros retornaram as consultas respectivamente?
+db.livros.insertMany([
+	{"title" : "Saci Pererê", "isbn" : "100", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
+	{"title" : "A Cuca", "isbn" : "99", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
+	{"title" : "Curupira", "isbn" : "98", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
+	{"title" : "Jeca Tatu", "isbn" : "97", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]}
+])
+> db.livros.find({isbn: {$lte: "10"}}).count()
+4
+> db.livros.find({isbn: {$lte: "100"}}).count()
+5
+
+# 10. Pela prática número 10, onde você precisou consultar os nomes dos livros que tem a chave isbn menor ou igual a "10" ($lte: "10"), qual é o nome de um dos livros retornados na consulta? 
+> db.livros.find({isbn: {$lte: "10"}}, {_id: 0, title: 1}).limit(2)
+{ "title" : "Comprehensive Networking Glossary and Acronym Guide" }
+{ "title" : "Personal Videoconferencing" }
+
+# 11. Pela prática número 11, onde usamos o comando skip(), o que esse comando fez no resultado da consulta? 
+- A consulta retornou 3 documentos.
+
+# 12. Pela prática número 11, onde usamos o comando skip(), qual dos títulos de livros abaixo foi retornado pela consulta executada? > db.livros.find({isbn:{$lte: "100"}}).pretty().skip(2)
+- "Saci Pererê". 
+
+# 13. Pela prática número 12, onde foi feita a consulta db.livros.find({title: /Windows/}).count(), referente aos títulos retornados, qual a palavra comum observada em todos eles? 
+- “Windows”. 
+
+14. Pela prática número, 12 onde foi feita a consulta db.livros.find({title: /Windows/}).count(), quantos documentos foram retornados? 
+> db.livros.find({title: /Windows/}).count()
+11
+
+# 15. Pela prática número 13, onde foi feita uma consulta que retornou os dois maiores valores para a chave pageCount, quais foram esses valores?
+> db.livros.find({}, {_id: 0, pageCount: 1}).sort({pageCount: -1}).limit(2)
+{ "pageCount" : 1101 }
+{ "pageCount" : 1096 }

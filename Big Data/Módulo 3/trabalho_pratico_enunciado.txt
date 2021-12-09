@@ -1,0 +1,79 @@
+Objetivos
+Exercitar os seguintes conceitos vistos em aulas:
+✓ Banco de dados NoSQL
+Enunciado
+Vamos utilizar um arquivo de entrada para ser carregado no MongoDB. Esse arquivo tem informações de livros diversos. O objetivo é carregar esse arquivo e exercitar alguns comandos no MongoDB.
+Objetivos
+Basicamente, vamos carregar o conteúdo de um arquivo json em uma collection e em seguida, iremos praticar alguns comandos no MongoDB.
+Atividades
+O primeiro passo é baixar o arquivo “books.json” do link abaixo ou pegá-los na plataforma do IGTI:
+https://drive.google.com/drive/folders/1yWdAiuMCqjC7Fe50o5ouWYawHExrnUbt?usp=sharing
+Você precisará criar um database chamado “aula”.
+Você precisará criar uma collection chamada “livros”.
+Vamos carregar o arquivo books.json na collection “livros”.
+Você pode fazer essa carga pelo MongoDBCompass ou pelo prompt de comando do MongoDB.
+Carga pelo MongoDBCompass
+É possível criar o database e a collection.
+Carga do json na collections: dentro do database, localize a collection e clique nela. Vai abrir uma janela mostrando a collection aula.livro com um botão “add data”, que servirá para carregar o arquivo json.
+Carga pelo prompt de comando do MongoDB
+Você precisará usar o executável mongoimport.exe que fica localizando dentro da pasta “\bin” na instalação do MongoDB.
+A partir da versão 4.4.0 do MongoDB, o mongoimport é lançado separadamente do MongoDB Server, então você precisa fazer uma instalação independente para o mongoimport.
+Baixe em Acesse o Centro de Download;
+https://www.mongodb.com/try/download/database-tools?tck=docs_databasetools
+• Clique em Tools;
+• Selecione plataforma (windows) e o package (zip)
+• Clique em Download;
+Extraia os arquivos do zip. São arquivos do tipo exe que você irá copiar para a pasta bin no diretório onde está o MongoDB (por exemplo: C:\Program Files\MongoDB\Server\4.4\bin).
+Interface de comando do MongoDB: o próximo passo é executar a interface de comando que nos permitirá interagir com o MongoDB.
+Basta clicar na lupa à esquerda na barra de tarefas do Windows e digitar “cmd” ou “command”. Em seguida, clique em cima dele com o botão direito para abrir como administrador.
+• Abrir como administrador o prompt de comando.
+• Mudar para o diretório “bin” onde o MongoDB está instalado (CD\Program Files\MongoDB\Server\4.4\bin).
+• Digitar: mongo.
+Interface de comando do mongoimport: vamos abrir outro terminal de comandos que nos permitirá interagir com o mongoimport.
+Basta clicar na lupa à esquerda na barra de tarefas do Windows e digitar “cmd” ou “command”. Clicar em cima dele com o botâo direito para abrir como administrador.
+• Abrir como administrador o prompt de comando.
+• Mudar para o diretório “bin” onde o MongoDB está instalado (CD\Program Files\MongoDB\Server\4.4\bin).
+• Digitar o seguinte comando. Nele eu considerei que o arquivo json estaria no diretório d:\temp. Você precisa considerar o caminho onde está armazenado o seu arquivo json.
+mongoimport --db="aula" --collection="livros" --file="d:\temp\MongoDB\books.json"
+Vá no prompt do MongoDB e faça as práticas abaixo. Anote todos os resultados, pois você vai precisar deles para responder ao trabalho prático.
+Digite os comandos conforme instruções abaixo.
+1) Mostrar todos os databases:
+show dbs
+2) Acesso ao database aula:
+use aula
+3) Checagem se há collections no database aula:
+show collections
+4) Checagem se a collections livros foi carregada:
+db.livros.find().count()
+O resultado será um número de títulos. Anote esse valor.
+5) Você precisa consultar os livros com o campo pageCount menor ou igual a 100. Repare que esse campo é numérico. O comando abaixo vai retornar a lista de livros. Para facilitar você pode usar .pretty(). Para facilitar mais ainda você pode usar .count().
+db.livros.find({pageCount:{$lte: 100}}) Anote esse valor.
+6) Agora vamos consultar os livros com o campo isbn menor ou igual a "1617200000". Repare que esse campo tem um conteúdo string e não numérico.
+O comando é: db.livros.find({isbn:{$lte: "1617200000"}})
+Lembre se de usar o “.count()” para facilitar o resultado.
+Mas o que realmente nos interessa é buscar os valores maiores que "1933988746". Baseado no comando acima, faça os ajustes para que a consulta retorne apenas os maiores valores que "1933988746". Anote esse valor.
+7) Faça uma consulta na collection de livros onde o campo isbn é menor ou igual a "1617200000". Recupere apenas os nomes dos livros.
+Para facilitar, você pode usar o comando pretty() ou para facilitar ainda mais use algo similar ao comando db.customers.find({ }, {"name":1, "age":1}) e nesse caso tire o pretty().
+Nessa lista retornada anote o título do livro começado com a letra G.
+8) Execute o comando abaixo para inserir mais 4 livros
+db.livros.insertMany([
+{"title" : "Saci Pererê", "isbn" : "100", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
+{"title" : "A Cuca", "isbn" : "99", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
+{"title" : "Curupira", "isbn" : "98", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
+{"title" : "Jeca Tatu", "isbn" : "97", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]}
+])
+9) Execute o comando para saber quantos livros tem o campo isbn menor ou igual a "10" ($lte: "10"). Lembre se de usar o “.count()” para facilitar o resultado. Em seguida, faça o mesmo para o campo isbn menor ou igual a "100" ($lte: "100").
+Anote os valores retornados pelas duas consultas.
+10) Ainda utilizando o comando do passo anterior (9), a consulta retorna livros que tem o campo isbn menor ou igual a "10" ($lte: "10"). Quais são os 2 primeiros livros da lista? Dica, use o comando pretty() e limit() para facilitar a visualização do resultado.
+Anote o nome dos dois livros retornados.
+11) O que faz o comando abaixo? Ele mostra quantos livros e porque isso?
+db.livros.find({isbn:{$lte: "100"}}).pretty().skip(2)
+Anote o nome dos livros retornados.
+12) O que faz o comando abaixo? Ele mostra quantos livros e porque isso? Observe o que há de comum nos títulos dos livros.
+db.livros.find({title: /Windows/}).count()
+Anote o número de livros retornados.
+13) No comando find, vamos acrescentar o comando sort descendente (-1) para a chave pageCount.
+Utilize o comando limit = 2, pois o que quero saber é quais são os dois maiores valores para a chave pageCount.
+A dica é usar o find({ }, {"pageCount":1, "_id":0}) para trazer apenas a chave pageCount desejada.
+Anote os dois valores retornados para a chave “pageCount”
+Os alunos deverão desenvolver as práticas e depois, responder às questões objetivas.

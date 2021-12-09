@@ -1,55 +1,7 @@
-mongo
-use aula
-mongoimport --db="aula" --collection="livros" --file="books.json"
 
-1) Mostrar todos os databases:
-show dbs
-2) Acesso ao database aula:
-use aula
-3) Checagem se há collections no database aula:
-show collections
-	431
-4) Checagem se a collections livros foi carregada:
-db.livros.find().count()
-5) Você precisa consultar os livros com o campo pageCount menor ou igual a 100. Repare que esse campo é numérico. O comando abaixo vai retornar a lista de livros. Para facilitar você pode usar .pretty(). Para facilitar mais ainda você pode usar .count().
-db.livros.find({pageCount: {$lte: 100}}).count()
-	166
-6) Agora vamos consultar os livros com o campo isbn menor ou igual a "1617200000". Repare que esse campo tem um conteúdo string e não numérico.
-O comando é: db.livros.find({isbn:{$lte: "1617200000"}})
-Lembre se de usar o “.count()” para facilitar o resultado.
-Mas o que realmente nos interessa é buscar os valores maiores que "1933988746". Baseado no comando acima, faça os ajustes para que a consulta retorne apenas os maiores valores que "1933988746". Anote esse valor.
-db.livros.find({isbn: {$gte: "1933988746"}}).count()
-	85
-7) Faça uma consulta na collection de livros onde o campo isbn é menor ou igual a "1617200000". Recupere apenas os nomes dos livros.
-db.livros.find({$and: [{isbn: {$lte: "1617200000"}}, {title: /^G/}]}, {_id: 0, title: 1}).sort({title: 1})
-	Graphics File Formats
-8) Execute o comando abaixo para inserir mais 4 livros
-db.livros.insertMany([
-{"title" : "Saci Pererê", "isbn" : "100", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
-{"title" : "A Cuca", "isbn" : "99", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
-{"title" : "Curupira", "isbn" : "98", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]},
-{"title" : "Jeca Tatu", "isbn" : "97", "pageCount" : 0, "publishedDate": ISODate("2000-10-01T07:00:00Z"), "status" : "PUBLISH", "authors" : [ ], "categories" : [ ]}
-])
-9) Execute o comando para saber quantos livros tem o campo isbn menor ou igual a "10" ($lte: "10"). Lembre se de usar o “.count()” para facilitar o resultado. Em seguida, faça o mesmo para o campo isbn menor ou igual a "100" ($lte: "100").
-db.livros.find({isbn: {$lte: "10"}}).count()
-	4
-db.livros.find({isbn: {$lte: "100"}}).count()
-	5
-10) Ainda utilizando o comando do passo anterior (9), a consulta retorna livros que tem o campo isbn menor ou igual a "10" ($lte: "10"). Quais são os 2 primeiros livros da lista? Dica, use o comando pretty() e limit() para facilitar a visualização do resultado.
-db.livros.find({isbn: {$lte: "10"}}, {_id: 0, title: 1}).limit(2)
-	{ "title" : "Comprehensive Networking Glossary and Acronym Guide" }
-	{ "title" : "Personal Videoconferencing" }
-11) O que faz o comando abaixo? Ele mostra quantos livros e porque isso?
-db.livros.find({isbn:{$lte: "100"}}).pretty().skip(2)
-	3
-12) O que faz o comando abaixo? Ele mostra quantos livros e porque isso? Observe o que há de comum nos títulos dos livros.
-db.livros.find({title: /Windows/}).count()
-	11
-db.livros.find({title: /Windows/}, {_id:0, title:1})
-13) No comando find, vamos acrescentar o comando sort descendente (-1) para a chave pageCount.
-db.livros.find({}, {_id: 0, pageCount: 1}).sort({pageCount: -1}).limit(2)
-	{ "pageCount" : 1101 }
-	{ "pageCount" : 1096 }
+
+
+
 
 
 
@@ -92,37 +44,31 @@ A dica é que podemos usar a condição IN para retornar apenas valores que est�
 db.aeronave.find({tipo_veiculo: {$nin: ['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE']}}).limit(8).pretty()
 db.aeronave.find({tipo_veiculo: {$nin: ['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE']}}, {_id: 0, tipo_veiculo: 1})
 db.aeronave.aggregate({$match: {tipo_veiculo: {$nin: ['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE']}}}, {$group: {_id: '$tipo_veiculo'}})
+db.aeronave.aggregate([{$match: {tipo_veiculo: {$nin: ['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE', '***']}}}, {$group: {_id: '$tipo_veiculo', count: {$count: {}}}}, {$sort: { count: -1}}])
+db.aeronave.find({tipo_veiculo: {$nin: ['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE']}}, {_id: 0, tipo_veiculo: 1}).limit(10)
+
 7) Execute um comando aggregate() na collection aeronave para agrupar os documentos pelo campo tipo_veiculo fazendo uma contagem ($sum:1) para cada tipo_veiculo.
 db.aeronave.aggregate({$group: {_id: '$tipo_veiculo', count: {$sum: 1}}})
 db.aeronave.aggregate({$group: {_id: '$tipo_veiculo', count: {$count: {}}}})
 db.aeronave.aggregate([{$sort: {tipo_veiculo: 1}}, {$group: {_id: '$tipo_veiculo', sum: {$sum: 1}, count: {$count: {}}}}])
-	{ "_id" : "ANFIBIO", "sum" : 12, "count" : 12 }
-	{ "_id" : "PLANADOR", "sum" : 15, "count" : 15 }
-	{ "_id" : "HELICOPTERO", "sum" : 600, "count" : 600 }
-	{ "_id" : "ULTRALEVE", "sum" : 307, "count" : 307 }
-	{ "_id" : "AVIAO", "sum" : 4195, "count" : 4195 }
-	{ "_id" : "TRIKE", "sum" : 4, "count" : 4 }
-	{ "_id" : "DIRIGIVEL", "sum" : 2, "count" : 2 }
-	{ "_id" : "HIDROAVIAO", "sum" : 1, "count" : 1 }
-	{ "_id" : "***", "sum" : 76, "count" : 76 }
-	{ "_id" : "BALAO", "sum" : 1, "count" : 1 }
+db.aeronave.aggregate([
+	{$match: {tipo_veiculo: {$in: ['DIRIGIVEL', 'ULTRALEVE']}}}, 
+	{$group: {_id: '$tipo_veiculo', count: {$count: {}}}}, 
+	{$sort: { count: -1}}])
+
 8) Execute um comando find() na collection ocorrencia para buscar os documentos com o field num_recomendacoes menor ou igual ($lte) a 5 (<=5). Limite o resultado da sua consulta em 10 documentos. Anote o maior valor para a recomendação encontrada.
 db.ocorrencia.find({num_recomendacoes: {$lte: 5}}).limit(10).sort({num_recomendacoes: -1}).pretty()
 db.ocorrencia.find({num_recomendacoes: {$lte: 5}}, {_id: 0, num_recomendacoes: 1}).limit(10)
 	3
+
 9) Execute um comando aggregate() na collection ocorrencia para buscar os documentos conforme abaixo.
 • Field num_recomendacoes menor ou igual ($lte) a 5 (<=5).
 • Agrupar pelo field uf ($uf).
 • Fazer a contagem ($sum:1).
 • Ordenar de forma descendente
- db.ocorrencia.aggregate([
-	{$match: {num_recomendacoes: {$lte: 5}}}, 
-	{$group: {_id: '$uf', sum: {$sum: 1}, count: {$count: {}}}}, 
-	{$sort: {_id: 1}}
-])
 db.ocorrencia.aggregate([
 	{$match: {num_recomendacoes: {$lte: 5}}}, 
-	{$group: {_id: '$uf', sum: {$sum: 1}, count: {$count: {}}}}, 
+	{$group: {_id: '$uf', sum: {$sum: 1}}}, 
 	{$sort: {sum: -1}}
 ])
 	{ "_id" : "***", "sum" : 2, "count" : 2 }
@@ -153,6 +99,20 @@ db.ocorrencia.aggregate([
 	{ "_id" : "SE", "sum" : 20, "count" : 20 }
 	{ "_id" : "SP", "sum" : 1211, "count" : 1211 }
 	{ "_id" : "TO", "sum" : 46, "count" : 46 }
+
+db.ocorrencia.aggregate([
+	{$match: {num_recomendacoes: {$lte: 5}, uf: {$eq: "RN"}}}, 
+	{$group: {_id: '$uf', sum: {$sum: 1}}}, 
+	{$sort: {sum: -1}}
+])
+
+db.ocorrencia.aggregate([
+	{$match: {num_recomendacoes: {$lte: 5}}}, 
+	{$group: {_id: '$uf', sum: {$sum: 1}}}, 
+	{$sort: {sum: -1}}, 
+	{$limit: 1}
+])
+
 10) Execute um comando aggregate() na collection ocorrencia para buscar a média dos números de recomendações ($num_recomendacoes).
 db.ocorrencia.aggregate({$group: {_id: 'num_recomendacoes', avg: {$avg: '$num_recomendacoes'}}})
 	{ "_id" : "num_recomendacoes", "avg" : 0.3258971871968962 }

@@ -1,0 +1,239 @@
+# Criar o Database chamado “desafio”.
+> use desafio
+
+# Criar a collection “ocorrencia”:
+db.ocorrencia.drop()
+db.createCollection("ocorrencia", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      properties: {
+        id_ocorrencia: {
+          bsonType: "int",
+          description: "is not required"
+        },
+        classificacao: {
+          bsonType: "string",
+          description: "is not required"
+        },
+        cidade: {
+          bsonType: "string",
+          description: "is not required"
+        },
+        uf: {
+          bsonType: "string",
+          description: "is not required"
+        },
+        pais: {
+          bsonType: "string",
+          description: "is not required"
+        },
+        data: {
+          bsonType: "date",
+          description: "is not required"
+        },
+        num_recomendacoes: {
+          bsonType: "int",
+          description: "is not required"
+        }
+      }
+    }
+  }
+})
+
+# Criar a collection “ocorrencia_tipo”.
+db.ocorrencia_tipo.drop()
+db.createCollection("ocorrencia_tipo", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      properties: {
+        id_ocorrencia_t: {
+          bsonType: "int",
+          description: "is not required"
+        },
+        tipo: {
+          bsonType: "string",
+          description: "is not required"
+        }
+      }
+    }
+  }
+})
+
+# Criar a collection “aeronave”.
+db.aeronave.drop()
+db.createCollection("aeronave", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["assentos", "ano_fabricacao"],
+      properties: {
+        id_ocorrencia_a: {
+          bsonType: "int",
+          description: "is not required"
+        },
+        matricula: {
+          bsonType: "string",
+          description: "is not required"
+        },
+        operador_categoria: {
+          bsonType: "string"
+        },
+        tipo_veiculo: {
+          bsonType: "string",
+          description: "is not required"
+        },
+        fabricante: {
+          bsonType: "string",
+          description: "is not required"
+        },
+        modelo: {
+          bsonType: "string",
+          description: "is not required"
+        },
+        motor_tipo: {
+          bsonType: "string"
+        },
+        motor_quantidade: {
+          bsonType: "string"
+        },
+        assentos: {
+          bsonType: "int",
+          minimum: 0,
+          maximum: 1000,
+          description: "must be an integer in [ 1, 1000 ] and is required"
+        },
+        ano_fabricacao: {
+          bsonType: "int",
+          minimum: 1900,
+          maximum: 2030,
+          description: "must be an integer in [ 1950, 2030 ] and is required"
+        },
+        pais_fabricante: {
+          bsonType: "string"
+        },
+        registro_segmento: {
+          bsonType: "string"
+        },
+        voo_origem: {
+          bsonType: "string"
+        },
+        voo_destino: {
+          bsonType: "string"
+        },
+        fase_operacao: {
+          bsonType: "string"
+        }
+      }
+    }
+  }
+})
+
+# Carregar a collection “aeronave”
+# mongoimport --db="desafio" --collection="aeronave" --file="aeronave.csv" --type="csv" --headerline
+# mongoimport --db="desafio" --collection="aeronave" --file="aeronave.csv" --type="csv" --columnsHaveTypes --fields="id_ocorrencia_a.int32(), matricula.string(), operador_categoria.string(), tipo_veiculo.string(), fabricante.string(), modelo.string(), motor_tipo.string(), motor_quantidade.string(), assentos.int32(), ano_fabricacao.int32(), pais_fabricante.string(), registro_segmento.string(), voo_origem.string(), voo_destino.string(), fase_operacao.string()"
+- precisa ser pelo mongodbcompass
+
+
+
+# 1. Pelo uso correto da função aggregate, podemos agrupar os documentos por um determinado campo (field). Como fica a visualização do agrupamento se utilizarmos {$sum:1}?
+- Os documentos serão agrupados pelo campo informado e será exibida a CONTAGEM dos documentos.
+
+# 2. Pela PRÁTICA 1, antes de fazer a importação novamente na collection aeronave, você precisou limpar essa collection. Quantos documentos foram removidos? 
+> db.aeronave.remove({})
+97
+
+# 3. Pelas PRÁTICAS 2 a 4, quais foram os valores para os totais de documentos carregados (importados dos arquivos csv) respectivamente nas collections “ocorrencia” e “aeronave”? 
+> db.ocorrencia.find().count()
+5155
+> db.aeronave.find().count()
+5213
+
+# 4. Pela PRÁTICA 5, executamos o comando find() na collection aeronave com a restrição modelo= “AB-115” OU tipo_veiculo = “AVIAO”. Quais foram as matrículas dos dois primeiros documentos listados?
+> db.aeronave.find({$or: [{modelo: "AB-115"}, {tipo_veiculo: "AVIAO"}]}, {_id: 0, matricula: 1}).limit(2).pretty()
+{ "matricula" : "PTNQX" }
+{ "matricula" : "PTLVI" }
+
+# 5. Pela PRÁTICA 6, executamos o comando find() na collection aeronave observando o campo tipo_veiculo. Verificando os 10 primeiros documentos retornados, quais foram os “tipo_veiculo” mais listados?  
+# Obs.: O retorno pode ter apenas um tipo_veiculo ou pode ter mais de um tipo_veiculo.
+> db.aeronave.find(
+  {tipo_veiculo: {$nin: ['AVIAO', 'HELICOPTERO', 'HIDROAVIAO', 'PLANADOR', 'ULTRALEVE']}}, 
+  {_id: 0, tipo_veiculo: 1}).limit(10)
+{ "tipo_veiculo" : "ANFIBIO" }
+{ "tipo_veiculo" : "ANFIBIO" }
+{ "tipo_veiculo" : "ANFIBIO" }
+{ "tipo_veiculo" : "ANFIBIO" }
+{ "tipo_veiculo" : "ANFIBIO" }
+{ "tipo_veiculo" : "ANFIBIO" }
+{ "tipo_veiculo" : "DIRIGIVEL" }
+{ "tipo_veiculo" : "DIRIGIVEL" }
+{ "tipo_veiculo" : "***" }
+{ "tipo_veiculo" : "***" }
+
+# 6. Sobre manipulação de datas no MongoDB, É CORRETO AFIRMAR que: 
+- O construtor ISODate () retorna um objeto Date. 
+
+# 7. Pela PRÁTICA 7, executamos o comando aggregate() na collection aeronave para agrupar os documentos pelo campo “tipo_veiculo” fazendo uma contagem ($sum:1) para cada “tipo_veiculo”. Qual foi a contagem de documentos (número retornado) para os tipos de veículos DIRIGIVEL E ULTRALEVE, respectivamente? 
+> db.aeronave.aggregate([
+	{$match: {tipo_veiculo: {$in: ['DIRIGIVEL', 'ULTRALEVE']}}}, 
+	{$group: {_id: '$tipo_veiculo', count: {$count: {}}}}])
+{ "_id" : "ULTRALEVE", "count" : 307 }
+{ "_id" : "DIRIGIVEL", "count" : 2 }
+
+# 8. Pela PRÁTICA 8, executamos o comando find() na collection ocorrencia para buscar os documentos com o campo num_recomendacoes menor ou igual ($lte) a 5 (<=5). Considerando os 10 primeiros documentos retornados, qual foi o valor MÁXIMO que apareceu para os números de recomendações (num_recomendacoes)? 
+> db.ocorrencia.find({num_recomendacoes: {$lte: 5}}, {_id: 0, num_recomendacoes: 1}).limit(10)
+{ "num_recomendacoes" : 2 }
+{ "num_recomendacoes" : 0 }
+{ "num_recomendacoes" : 2 }
+{ "num_recomendacoes" : 0 }
+{ "num_recomendacoes" : 0 }
+{ "num_recomendacoes" : 0 }
+{ "num_recomendacoes" : 3 }
+{ "num_recomendacoes" : 3 }
+{ "num_recomendacoes" : 0 }
+{ "num_recomendacoes" : 0 }
+
+# 9. Pela PRÁTICA 9, executamos o comando aggregate() na collection ocorrencia. Qual o total da contagem que apareceu para o estado “RN”? 
+> db.ocorrencia.aggregate([
+	{$match: {num_recomendacoes: {$lte: 5}, uf: {$eq: "RN"}}}, 
+	{$group: {_id: '$uf', sum: {$sum: 1}}}, 
+	{$sort: {sum: -1}}])
+{ "_id" : "RN", "sum" : 14 }
+
+# 10. Pela PRÁTICA 9, executamos o comando aggregate() na collection ocorrencia. Qual o estado (campo uf) que obteve uma maior contagem, ou seja, tem mais documentos? 
+db.ocorrencia.aggregate([
+	{$match: {num_recomendacoes: {$lte: 5}}}, 
+	{$group: {_id: '$uf', sum: {$sum: 1}}}, 
+	{$sort: {sum: -1}}, 
+	{$limit: 1}])
+{ "_id" : "SP", "sum" : 1211 }
+
+# 11. Pela PRÁTICA 10, executamos o comando aggregate() na collection ocorrencia para buscar a média dos números de recomendações ($num_recomendacoes). Qual foi o valor aproximado obtido como média? 
+> db.ocorrencia.aggregate({$group: {_id: 'num_recomendacoes', avg: {$avg: '$num_recomendacoes'}}})
+{ "_id" : "num_recomendacoes", "avg" : 0.3258971871968962 }
+
+# 12. Pela PRÁTICA 11, onde executamos o comando lookup aggregate() na collection aeronave fazendo uma junção com a collection ocorrência, é CORRETO AFIRMAR: 
+db.aeronave.aggregate([{
+  $lookup:{
+    from: 'ocorrencia',
+    localField: 'id_ocorrencia_a',
+    foreignField: 'id_ocorrencia',
+    as: 'ocorrencia'}}, 
+  {$limit: 2}]).pretty()
+- Foram listados os documentos das collections de aeronave e ocorrencia, sendo que os documentos da collection ocorrencia apareceram de forma “embedded”, ou seja, documento dentro de documento.
+
+# 13. Pela PRÁTICA 11, onde executamos o comando lookup aggregate() na collection aeronave fazendo uma junção com a collection ocorrencia é CORRETO AFIRMAR: 
+- A junção se deu pelos campos (fields) "id_ocorrencia_a" e "id_ocorrencia".
+
+# 14. Pela PRÁTICA 12, onde executamos um comando lookup aggregate(), é CORRETO AFIRMAR que no primeiro documento retornado o valor do campo (field) “cidade” foi: 
+db.ocorrencia.aggregate([{
+		$lookup:{
+			from: 'ocorrencia_tipo',
+			localField: 'id_ocorrencia',
+			foreignField: 'id_ocorrencia_t',
+			as: 'ocorrencia_tipo'}}, 
+  {$limit: 1}]).pretty()
+
+# 15. NÃO É CORRETO afirmar que pelo MongoDB Compass: 
+- É possível executar comandos SQL em tabelas no MongoDB.
